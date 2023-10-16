@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
             char word[MAX_WORD_LEN];
             int i = 0;
             while (c != ' ' && c != '\n' && c != EOF) {
-                word[i++] = (char) c;
+                word[i++] = c;
                 c = fgetc(source_file);
             }
             word[i] = '\0';
