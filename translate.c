@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <libstemmer.h>
 
 #define MAX_WORD_LEN 100
 
@@ -37,20 +36,17 @@ int main(int argc, char *argv[]) {
     // Чтение исходного текста и перевод
     int c;
     while ((c = fgetc(source_file)) != EOF) {
-        if (c == ' ' || c == '\n' || c == '\t') {
-            // Просто записываем пробелы, табуляции и переносы строк в выходной файл
+        if (c == ' ' || c == '\n') {
             fputc(c, output_file);
         } else {
-            // Считываем слово из исходного файла
             char word[MAX_WORD_LEN];
             int i = 0;
-            while (c != EOF && c != ' ' && c != '\n' && c != '\t') {
+            while (c != ' ' && c != '\n' && c != EOF) {
                 word[i++] = c;
                 c = fgetc(source_file);
             }
             word[i] = '\0';
 
-            // Ищем перевод слова в словаре
             int found = 0;
             for (int i = 0; i < num_words; i++) {
                 if (strcmp(word, source_words[i]) == 0) {
@@ -62,10 +58,10 @@ int main(int argc, char *argv[]) {
             if (!found) {
                 fprintf(output_file, "%s", word);
             }
-
-            // Записываем пробел после слова, если это не конец строки
-            if (c != '\n') {
+            if (c == ' ') {
                 fputc(' ', output_file);
+            } else if (c == '\n') {
+                fputc('\n', output_file);
             }
         }
     }
