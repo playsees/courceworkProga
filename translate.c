@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <libstemmer.h>
 
 #define MAX_WORD_LEN 100
 
@@ -19,6 +20,9 @@ int main(int argc, char *argv[]) {
         printf("Error: could not open file\n");
         return 1;
     }
+
+    // Инициализация стеммера для русского языка
+    struct sb_stemmer *stemmer = sb_stemmer_new("ru", NULL);
 
     // Чтение словаря
     char source_word[MAX_WORD_LEN], target_word[MAX_WORD_LEN];
@@ -44,8 +48,9 @@ int main(int argc, char *argv[]) {
         char *word = strtok(line, " \n");
         while (word != NULL) {
             int found = 0;
+            char *stemmed_word = sb_stemmer_stem(stemmer, word, strlen(word));
             for (int i = 0; i < num_words; i++) {
-                if (strcmp(word, source_words[i]) == 0) {
+                if (strcmp(stemmed_word, source_words[i]) == 0) {
                     // Добавление пробелов в начало строки переведенного текста
                     for (int j = 0; j < num_spaces; j++) {
                         fprintf(output_file, " ");
@@ -62,6 +67,7 @@ int main(int argc, char *argv[]) {
                 }
                 fprintf(output_file, "%s ", word);
             }
+            free(stemmed_word);
             word = strtok(NULL, " \n");
         }
         fprintf(output_file, "\n");
@@ -75,6 +81,7 @@ int main(int argc, char *argv[]) {
     free(source_words);
     free(target_words);
     free(line);
+    sb_stemmer_delete(stemmer);
     fclose(source_file);
     fclose(dict_file);
     fclose(output_file);
