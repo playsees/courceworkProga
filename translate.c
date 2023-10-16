@@ -36,30 +36,19 @@ int main(int argc, char *argv[]) {
     // Чтение исходного текста и перевод
     char *line = NULL;
     size_t len = 0;
-    ssize_t read;
+    size_t read;
     while ((read = getline(&line, &len, source_file)) != -1) {
-        // Сохранение количества пробелов в начале строки
-        int num_spaces = strspn(line, " ");
-
         char *word = strtok(line, " \n");
         while (word != NULL) {
             int found = 0;
             for (int i = 0; i < num_words; i++) {
                 if (strcmp(word, source_words[i]) == 0) {
-                    // Добавление пробелов в начало строки переведенного текста
-                    for (int j = 0; j < num_spaces; j++) {
-                        fprintf(output_file, " ");
-                    }
                     fprintf(output_file, "%s ", target_words[i]);
                     found = 1;
                     break;
                 }
             }
             if (!found) {
-                // Добавление пробелов в начало строки переведенного текста
-                for (int j = 0; j < num_spaces; j++) {
-                    fprintf(output_file, " ");
-                }
                 fprintf(output_file, "%s ", word);
             }
             word = strtok(NULL, " \n");
