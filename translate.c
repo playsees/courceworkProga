@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <libstemmer.h>
 
 #define MAX_WORD_LEN 100
 
@@ -34,26 +35,39 @@ int main(int argc, char *argv[]) {
     }
 
     // Чтение исходного текста и перевод
-    char *line = NULL;
-    size_t len = 0;
-    ssize_t read;
-    while ((read = getline(&line, &len, source_file)) != -1) {
-        char *word = strtok(line, " \n");
-        while (word != NULL) {
+    int c;
+    while ((c = fgetc(source_file)) != EOF) {
+        if (c == ' ' || c == '\n' || c == '\t') {
+            // Просто записываем пробелы, табуляции и переносы строк в выходной файл
+            fputc(c, output_file);
+        } else {
+            // Считываем слово из исходного файла
+            char word[MAX_WORD_LEN];
+            int i = 0;
+            while (c != EOF && c != ' ' && c != '\n' && c != '\t') {
+                word[i++] = c;
+                c = fgetc(source_file);
+            }
+            word[i] = '\0';
+
+            // Ищем перевод слова в словаре
             int found = 0;
             for (int i = 0; i < num_words; i++) {
                 if (strcmp(word, source_words[i]) == 0) {
-                    fprintf(output_file, "%s ", target_words[i]);
+                    fprintf(output_file, "%s", target_words[i]);
                     found = 1;
                     break;
                 }
             }
             if (!found) {
-                fprintf(output_file, "%s ", word);
+                fprintf(output_file, "%s", word);
             }
-            word = strtok(NULL, " \n");
+
+            // Записываем пробел после слова, если это не конец строки
+            if (c != '\n') {
+                fputc(' ', output_file);
+            }
         }
-        fprintf(output_file, "\n");
     }
 
     // Освобождение памяти и закрытие файлов
@@ -63,7 +77,6 @@ int main(int argc, char *argv[]) {
     }
     free(source_words);
     free(target_words);
-    free(line);
     fclose(source_file);
     fclose(dict_file);
     fclose(output_file);
