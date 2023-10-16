@@ -1,80 +1,46 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
-#define MAX_WORD_LEN 100
+#define MAX_LINE_LENGTH 1024
+#define MAX_WORD_LENGTH 128
 
-int main(int argc, char *argv[]) {
-    if (argc != 4) {
-        printf("Usage: translate <source_file> <dict_file> <output_file>\n");
-        return 1;
-    }
-
+int main() {
     // Открытие файлов
-    FILE *source_file = fopen(argv[1], "r");
-    FILE *dict_file = fopen(argv[2], "r");
-    FILE *output_file = fopen(argv[3], "w");
-
-    if (source_file == NULL || dict_file == NULL || output_file == NULL) {
-        printf("Error: could not open file\n");
-        return 1;
-    }
+    FILE* input_file = fopen("text_rus.txt", "r");
+    FILE* dictionary_file = fopen("dictionary.txt", "r");
+    FILE* output_file = fopen("text_eng.txt", "w");
 
     // Чтение словаря
-    char source_word[MAX_WORD_LEN], target_word[MAX_WORD_LEN];
-    int num_words = 0;
-    char **source_words = malloc(sizeof(char *));
-    char **target_words = malloc(sizeof(char *));
-    while (fscanf(dict_file, "%s %s", source_word, target_word) == 2) {
-        num_words++;
-        source_words = realloc(source_words, num_words * sizeof(char *));
-        target_words = realloc(target_words, num_words * sizeof(char *));
-        source_words[num_words - 1] = strdup(source_word);
-        target_words[num_words - 1] = strdup(target_word);
+    char dictionary[MAX_WORD_LENGTH][2][MAX_WORD_LENGTH];
+    int dictionary_size = 0;
+    while (fscanf(dictionary_file, "%s %s", dictionary[dictionary_size][0], dictionary[dictionary_size][1]) == 2) {
+        dictionary_size++;
     }
 
-    // Чтение исходного текста и перевод
-    int c;
-    while ((c = fgetc(source_file)) != EOF) {
-        if (c == ' ' || c == '\n') {
-            fputc(c, output_file);
-        } else {
-            char word[MAX_WORD_LEN];
-            int i = 0;
-            while (c != ' ' && c != '\n' && c != EOF) {
-                word[i++] = c;
-                c = fgetc(source_file);
-            }
-            word[i] = '\0';
-
+    // Перевод текста
+    char line[MAX_LINE_LENGTH];
+    while (fgets(line, MAX_LINE_LENGTH, input_file) != NULL) {
+        char* word = strtok(line, " \t\n");
+        while (word != NULL) {
             int found = 0;
-            for (int i = 0; i < num_words; i++) {
-                if (strcmp(word, source_words[i]) == 0) {
-                    fprintf(output_file, "%s", target_words[i]);
+            for (int i = 0; i < dictionary_size; i++) {
+                if (strcmp(word, dictionary[i][0]) == 0) {
+                    fprintf(output_file, "%s ", dictionary[i][1]);
                     found = 1;
                     break;
                 }
             }
             if (!found) {
-                fprintf(output_file, "%s", word);
+                fprintf(output_file, "%s ", word);
             }
-            if (c == ' ') {
-                fputc(' ', output_file);
-            } else if (c == '\n') {
-                fputc('\n', output_file);
-            }
+            word = strtok(NULL, " \t\n");
         }
+        fprintf(output_file, "\n");
     }
 
-    // Освобождение памяти и закрытие файлов
-    for (int i = 0; i < num_words; i++) {
-        free(source_words[i]);
-        free(target_words[i]);
-    }
-    free(source_words);
-    free(target_words);
-    fclose(source_file);
-    fclose(dict_file);
+    // Закрытие файлов
+    fclose(input_file);
+    fclose(dictionary_file);
     fclose(output_file);
 
     return 0;
