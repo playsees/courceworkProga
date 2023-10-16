@@ -34,39 +34,48 @@ int main(int argc, char *argv[]) {
     }
 
     // Чтение исходного текста и перевод
-    char *line = NULL;
-    size_t len = 0;
-    size_t read;
-    while ((read = getline(&line, &len, source_file)) != -1) {
-        char *word = strtok(line, " \n");
-        while (word != NULL) {
-            int found = 0;
-            for (int i = 0; i < num_words; i++) {
-                if (strcmp(word, source_words[i]) == 0) {
-                    fprintf(output_file, "%s ", target_words[i]);
-                    found = 1;
-                    break;
-                }
+char *line = NULL;
+size_t len = 0;
+size_t read;
+while ((read = getline(&line, &len, source_file)) != -1) {
+    // Записываем исходную строку в выходной файл
+    fprintf(output_file, "%s", line);
+
+    // Переводим каждое слово в строке
+    char *word = strtok(line, " \n");
+    while (word != NULL) {
+        int found = 0;
+        for (int i = 0; i < num_words; i++) {
+            if (strcmp(word, source_words[i]) == 0) {
+                fprintf(output_file, "%s", target_words[i]);
+                found = 1;
+                break;
             }
-            if (!found) {
-                fprintf(output_file, "%s ", word);
-            }
-            word = strtok(NULL, " \n");
         }
-        fprintf(output_file, "\n");
+        if (!found) {
+            fprintf(output_file, "%s", word);
+        }
+        // Записываем пробел или символ новой строки после слова
+        char *next_char = word + strlen(word);
+        if (*next_char == '\n') {
+            fprintf(output_file, "\n");
+        } else {
+            fprintf(output_file, " ");
+        }
+        word = strtok(NULL, " \n");
     }
+}
 
-    // Освобождение памяти и закрытие файлов
-    for (int i = 0; i < num_words; i++) {
-        free(source_words[i]);
-        free(target_words[i]);
-    }
-    free(source_words);
-    free(target_words);
-    free(line);
-    fclose(source_file);
-    fclose(dict_file);
-    fclose(output_file);
-
+// Освобождение памяти и закрытие файлов
+for (int i = 0; i < num_words; i++) {
+    free(source_words[i]);
+    free(target_words[i]);
+}
+free(source_words);
+free(target_words);
+free(line);
+fclose(source_file);
+fclose(dict_file);
+fclose(output_file);
     return 0;
 }
