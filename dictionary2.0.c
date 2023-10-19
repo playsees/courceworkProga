@@ -1,4 +1,4 @@
-#include <stdio.h>
+##include <stdio.h>
 #include <string.h>
 
 #define MAX_WORDS 1000
@@ -20,11 +20,14 @@ int main() {
     int freq[MAX_WORDS] = {0};
 
     // Define dictionary
-    struct dict_entry dict[] = {
+    struct dict_entry dict_init[] = {
         {"тирг", "tirg"},
         {"взор", "vzor"}
     };
-    n = sizeof(dict) / sizeof(dict[0]);
+    n = sizeof(dict_init) / sizeof(dict_init[0]);
+    for (i = 0; i < n; i++) {
+        dict[i] = dict_init[i];
+    }
 
     // Open input file
     input_file = fopen(input_filename, "r");
