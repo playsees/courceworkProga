@@ -50,16 +50,13 @@ int main() {
 
         // Parse line into words
         word = strtok(line, " ,.-\n");
-        int pos = 0;
         while (word != NULL) {
             // Search for word in dictionary
             found = 0;
             for (i = 0; i < n; i++) {
                 if (strcmp(word, dict[i].word) == 0) {
                     // Word found in dictionary, replace with translation
-                    int len = strlen(dict[i].translation);
-                    fseek(output_file, pos, SEEK_SET);
-                    fwrite(dict[i].translation, sizeof(char), len, output_file);
+                    fprintf(output_file, "%s ", dict[i].translation);
                     freq[i]++;
                     found = 1;
                     break;
@@ -69,7 +66,6 @@ int main() {
                 // Word not found in dictionary, keep original word
                 fprintf(output_file, "%s ", word);
             }
-            pos = ftell(output_file);
             word = strtok(NULL, " ,.-\n");
         }
     }
