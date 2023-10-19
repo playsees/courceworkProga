@@ -44,53 +44,35 @@ int main() {
     }
 
     // Read input file line by line
-    while (fgets(line, sizeof(line), input_file)) {
-        // Write line to output file
-        fputs(line, output_file);
-
-        // Parse line into words
-        word = strtok(line, " ,.-\n");
-        while (word != NULL) {
-            // Search for word in dictionary
-            found = 0;
-            for (i = 0; i < n; i++) {
-                if (strcmp(word, dict[i].word) == 0) {
-                    // Word found in dictionary, replace with translation
-                    fprintf(output_file, "%s ", dict[i].translation);
-                    freq[i]++;
-                    found = 1;
-                    break;
-                }
-            }
-            if (!found) {
-                // Word not found in dictionary, keep original word
-                fprintf(output_file, "%s ", word);
-            }
-            word = strtok(NULL, " ,.-\n");
-        }
-    }
-
-    // Sort dictionary by frequency of occurrence
-    for (i = 0; i < n - 1; i++) {
-        for (j = i + 1; j < n; j++) {
-            if (freq[i] < freq[j]) {
-                // Swap entries
-                struct dict_entry temp = dict[i];
-                dict[i] = dict[j];
-                dict[j] = temp;
-                int temp_freq = freq[i];
-                freq[i] = freq[j];
-                freq[j] = temp_freq;
-            }
-        }
-    }
-
-    // Print sorted dictionary to console
-    printf("Dictionary:\n");
-    for (i = 0; i < n; i++) {
-        printf("%s -> %s (%d)\n", dict[i].word, dict[i].translation, freq[i]);
-    }
-
+while (fgets(line, sizeof(line), input_file)) {
+// Split line into words and delimiters
+char *token = strtok(line, " ,.-\n");
+while (token != NULL) {
+// Check if the token is a delimiter
+if (strchr(" ,.-\n", token[strlen(token) - 1])) {
+// Token is a delimiter, just write it to the output file
+fprintf(output_file, "%s", token);
+} else {
+// Token is a word, search for it in the dictionary
+found = 0;
+for (i = 0; i < n; i++) {
+if (strcmp(token, dict[i].word) == 0) {
+// Word found in dictionary, replace with translation
+fprintf(output_file, "%s", dict[i].translation);
+freq[i]++;
+found = 1;
+break;
+}
+}
+if (!found) {
+// Word not found in dictionary, keep the original word
+fprintf(output_file, "%s", token);
+}
+}
+// Get the next token
+token = strtok(NULL, " ,.-\n");
+}
+}
     // Close files
     fclose(input_file);
     fclose(output_file);
