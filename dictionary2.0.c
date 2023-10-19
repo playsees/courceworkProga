@@ -1,4 +1,4 @@
-##include <stdio.h>
+#include <stdio.h>
 #include <string.h>
 
 #define MAX_WORDS 1000
@@ -45,6 +45,9 @@ int main() {
 
     // Read input file line by line
     while (fgets(line, sizeof(line), input_file)) {
+        // Write line to output file
+        fputs(line, output_file);
+
         // Parse line into words
         word = strtok(line, " ,.-\n");
         while (word != NULL) {
@@ -65,7 +68,6 @@ int main() {
             }
             word = strtok(NULL, " ,.-\n");
         }
-        fprintf(output_file, "\n");
     }
 
     // Sort dictionary by frequency of occurrence
